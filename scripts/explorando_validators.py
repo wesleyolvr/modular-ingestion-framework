@@ -14,6 +14,8 @@ print("errors: ", result.errors)
 result = validator.validate([{"id": 1, "nome": 1}])
 print("valid: ", result.valid)
 print("errors: ", result.errors)
+print("valid: ", result.valid)
+print("errors: ", result.errors)
 result = validator.validate([{"id": 1}])
 print("valid: ", result.valid)
 print("errors: ", result.errors)
@@ -23,6 +25,8 @@ print("errors: ", result.errors)
 result = validator.validate([{"id": 1, "nome": "Parnaíba", "idade": 20}])
 print("valid: ", result.valid)
 print("errors: ", result.errors)
+
+
 
 print("-" * 100)
 print("Validando a qualidade dos dados, ou seja, se os dados contêm campos nulos, duplicatas e valores fora de range.")
@@ -34,12 +38,35 @@ print("errors: ", result.errors)
 result = validator.validate([{"id": None}])
 print("valid: ", result.valid)
 print("errors: ", result.errors)
-result = validator.validate([{"id": 20, "valor": 250}])
-print("valid: ", result.valid)
-print("errors: ", result.errors)
 result = validator.validate([{"id": 200, "valor": 99.99}])
 print("valid: ", result.valid)
 print("errors: ", result.errors)
-result = validator.validate([{"id": 1}, {"id": 2}])
+result = validator.validate([{"id": 20, "valor": 250}])
 print("valid: ", result.valid)
 print("errors: ", result.errors)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# result = validator.validate([{"id": None}])
+# print("valid: ", result.valid)
+# print("errors: ", result.errors)
+# result = validator.validate([{"id": 20, "valor": 250}])
+# print("valid: ", result.valid)
+# print("errors: ", result.errors)
+# result = validator.validate([{"id": 200, "valor": 99.99}])
+# print("valid: ", result.valid)
+# print("errors: ", result.errors)
+# result = validator.validate([{"id": 1}, {"id": 2}])
+# print("valid: ", result.valid)
+# print("errors: ", result.errors)
