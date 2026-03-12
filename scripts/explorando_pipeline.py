@@ -2,12 +2,7 @@ from core.pipeline import Pipeline
 from validators.pydantic_validator import PydanticValidator
 from connectors.rest_connector import RESTConnector
 from loaders.postgres_loader import PostgresLoader
-from pydantic import BaseModel
 from datetime import datetime
-
-class Selic(BaseModel):
-    data: str
-    valor: str
 
 # ── Pipeline BCB Selic → Postgres ────────────────────────
 print("\n" + "=" * 60)
