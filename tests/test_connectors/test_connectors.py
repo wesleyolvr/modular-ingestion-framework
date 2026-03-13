@@ -55,7 +55,7 @@ class TestRESTConnectorFetch:
         assert result == [{"id": 1}]
         mock_request.assert_called_once_with(
             method="GET", url="https://api.example.com",
-            headers={}, params={}, json=None, timeout=30,
+            headers={"Accept": "application/json"}, params={}, json=None, timeout=30,
         )
 
     @patch("connectors.rest_connector.requests.request")

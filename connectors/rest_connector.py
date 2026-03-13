@@ -30,6 +30,9 @@ class RESTConnector(BaseConnector):
         self.url = url
         self.method = method.upper()
         self.headers = headers or {}
+        # Adiciona Accept: application/json por padrão se não especificado
+        if "Accept" not in self.headers:
+            self.headers["Accept"] = "application/json"
         self.params = params or {}
         self.timeout = timeout
         self.logger = get_logger(name=name)
@@ -42,8 +45,11 @@ class RESTConnector(BaseConnector):
         """
         Faz a requisição HTTP e retorna o JSON da resposta.
         kwargs sobrescrevem params configurados no construtor.
+        
+        Lança requests.exceptions.RequestException em caso de erro HTTP ou de conexão.
         """
         params = {**self.params, **kwargs}
+        response = None
         try:
             response = requests.request(
                 method=self.method,
@@ -57,4 +63,5 @@ class RESTConnector(BaseConnector):
             return response.json() if response.status_code == 200 else None
         except requests.exceptions.RequestException as e:
             self.logger.error("request_failed", error=str(e), exc_info=False, task="fetch", connector=self.name)
-            return response.json() if response.status_code == 200 else None
+            # Re-lança a exceção para que o Pipeline possa tratá-la adequadamente
+            raise

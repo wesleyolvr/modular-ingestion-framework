@@ -34,11 +34,12 @@ def transform_municipios(data: list[dict]) -> list[dict]:
 
 
 if __name__ == "__main__":
+    url = "https://servicodados.ibge.gov.br/api/v1/localidades/estados/PI/municipios"
     pipeline = Pipeline(
         name="ibge_municipios_pi",
         connector=RESTConnector(
             name="ibge_api",
-            url="https://servicodados.ibge.gov.br/api/v1/localidades/estados/PI/municipios",
+            url=url,
         ),
         validator=PydanticValidator(model=Municipio_IBGE, unique_by="id"),
         loader=JsonLoader(path="output/municipios_pi_ibge.json"),

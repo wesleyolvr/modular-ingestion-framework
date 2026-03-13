@@ -50,6 +50,11 @@ class Pipeline:
             # 1. Fetch
             self.logger.info("fetching_data", connector=self.connector.name)
             raw_data = self.connector.fetch(**fetch_kwargs)
+            
+            # Verifica se os dados foram retornados
+            if raw_data is None:
+                raise PipelineError("Connector retornou None - nenhum dado foi obtido")
+            
             metrics.records_fetched = self._count(raw_data)
             self.logger.info("fetch_complete", records=metrics.records_fetched)
             current_stage = "validation"
