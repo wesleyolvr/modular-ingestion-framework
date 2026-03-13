@@ -7,8 +7,7 @@ from core.base_validator import BaseValidator
 from audit.logger import get_logger
 from audit.metrics import PipelineMetrics
 from core.exceptions import PipelineError, ValidationError
-
-
+from transformers.base_transformer import BaseTransformer
 class Pipeline:
     """
     Orquestra o fluxo: fetch → validate → transform → load.
@@ -18,7 +17,7 @@ class Pipeline:
         connector   : como buscar os dados (BaseConnector)
         loader      : onde salvar os dados (BaseLoader)
         validator   : como validar os dados (BaseValidator, opcional)
-        transform   : função de transformação (callable, opcional)
+        transform   : função de transformação (callable ou BaseTransformer, opcional)
     """
 
     def __init__(
@@ -27,7 +26,7 @@ class Pipeline:
         connector: BaseConnector,
         loader: BaseLoader,
         validator: BaseValidator | None = None,
-        transform: Callable[[Any], Any] | None = None,
+        transform: Callable[[Any], Any] | BaseTransformer | None = None,
     ):
         self.name = name
         self.connector = connector
@@ -45,6 +44,7 @@ class Pipeline:
         metrics = PipelineMetrics(pipeline=self.name)
         start_time = time.monotonic()
         self.logger.info("pipeline_started")
+        current_stage = "fetch"
 
         try:
             # 1. Fetch
@@ -52,6 +52,7 @@ class Pipeline:
             raw_data = self.connector.fetch(**fetch_kwargs)
             metrics.records_fetched = self._count(raw_data)
             self.logger.info("fetch_complete", records=metrics.records_fetched)
+            current_stage = "validation"
 
             # 2. Validate
             if self.validator:
@@ -61,13 +62,23 @@ class Pipeline:
                     self.logger.error("validation_failed", errors=result.errors)
                     raise ValidationError(result.errors)
                 self.logger.info("validation_passed")
+            current_stage = "transform"
 
             # 3. Transform
             data = raw_data
             if self.transform:
-                self.logger.info("transforming_data")
-                data = self.transform(raw_data)
-                self.logger.info("transform_complete", records=self._count(data))
+                self.logger.info("transforming_data", transform=self.transform.__class__.__name__)
+                # Suporta tanto callable quanto BaseTransformer
+                if hasattr(self.transform, 'transform'):
+                    # É um BaseTransformer
+                    data = self.transform.transform(data)
+                elif callable(self.transform):
+                    # É uma função callable
+                    data = self.transform(data)
+                else:
+                    raise TypeError(f"transform deve ser callable ou BaseTransformer, recebido: {type(self.transform)}")
+                self.logger.info("transform_complete", records=self._count(data), transform=self.transform.__class__.__name__)
+            current_stage = "load"
 
             # 4. Load
             self.logger.info("loading_data", loader=self.loader.__class__.__name__, records=metrics.records_fetched)
@@ -90,6 +101,14 @@ class Pipeline:
             metrics.error_message = str(e)
             self.logger.error("pipeline_error", exc_info=True, error_message=str(e))
             raise
+
+        except Exception as e:
+            # Converte qualquer exceção não tratada em PipelineError
+            metrics.success = False
+            metrics.stage_failed = current_stage
+            metrics.error_message = str(e)
+            self.logger.error("pipeline_error", exc_info=True, error_message=str(e))
+            raise PipelineError(f"Pipeline failed at stage '{current_stage}': {str(e)}") from e
 
         finally:
             metrics.duration_seconds = round(time.monotonic() - start_time, 3)
