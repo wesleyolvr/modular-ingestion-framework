@@ -22,7 +22,7 @@ psycopg2-binary = "^2.9"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=core --cov=validators --cov=connectors --cov=loaders --cov=transformers --cov-report=term-missing"
+addopts = "--cov=core --cov=validators --cov=connectors --cov=loaders --cov=transformers --cov=audit --cov-report=term-missing"
 
 [build-system]
 requires = ["poetry-core"]
