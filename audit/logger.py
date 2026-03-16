@@ -46,7 +46,7 @@ class JsonFormatter(logging.Formatter):
                 "levelname", "levelno", "lineno", "module", "msecs",
                 "message", "pathname", "process", "processName",
                 "relativeCreated", "stack_info", "thread", "threadName",
-                "exc_info", "exc_text",
+                "exc_info", "exc_text", "taskName"
             ):
                 log_data[key] = value
 

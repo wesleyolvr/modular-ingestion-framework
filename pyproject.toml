@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "modular-ingestion-framework"
+version = "0.1.0"
+description = "Framework modular para pipelines de ingestão de dados"
+authors = ["Wesley de Oliveira <wesleyumsocaminho@gmail.com>"]
+readme = "README.md"
+packages = [{include = "core"}, {include = "connectors"}, {include = "validators"}, {include = "loaders"}, {include = "audit"}, {include = "transformers"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.31"
+pandas = "^2.1.1"
+openpyxl = "^3.1.5"
+pydantic = "^2.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+pytest-cov = "^5.0"
+
+[tool.poetry.group.postgres.dependencies]
+psycopg2-binary = "^2.9"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=core --cov=validators --cov=connectors --cov=loaders --cov=transformers --cov=audit --cov-report=term-missing"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
