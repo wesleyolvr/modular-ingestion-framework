@@ -2,6 +2,9 @@
 
 Framework Python para pipelines de ingestão de dados com arquitetura modular e componentes plugáveis — conectores, validadores e loaders intercambiáveis sem alterar o código do pipeline.
 
+![Tests](https://img.shields.io/badge/tests-118%20passing-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-82%25-green)
+![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ```
 fetch →      validate →      transform →        load
   ↑            ↑                 ↑                ↑
