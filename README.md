@@ -3,12 +3,13 @@
 Framework Python para pipelines de ingestão de dados com arquitetura modular e componentes plugáveis — conectores, validadores e loaders intercambiáveis sem alterar o código do pipeline.
 
 ```
-fetch → validate → transform → load
-  ↑          ↑         ↑         ↑
-connector  validator transformer loader
-  (REST,    (Pydantic) (FieldMapper, (JSON,
-  File)                Enrich,      PostgreSQL)
-                        Filter, etc)
+fetch →      validate →      transform →        load
+  ↑            ↑                 ↑                ↑
+connector   validator       transformer        loader
+  (REST,    (Pydantic)     (FieldMapper,       (JSON,
+    File)                                     PostgreSQL)
+                              Enrich,      
+                            Filter, etc)
 ```
 
 ![Fluxo do Pipeline](docs/imgs/diagrama_pipeline_flow.png)
