@@ -11,7 +11,7 @@ connector  validator transformer loader
                         Filter, etc)
 ```
 
-![Fluxo do Pipeline](docs/imgs/diagrama1_pipeline_flow.png)
+![Fluxo do Pipeline](docs/imgs/diagrama_pipeline_flow.png)
 
 ---
 
@@ -156,7 +156,7 @@ Demonstra uso de transformers individuais e `TransformPipeline` para compor múl
 
 ## Componentes
 
-![Arquitetura do Framework](docs/imgs/diagrama2_arquitetura.png)
+![Arquitetura do Framework](docs/imgs/diagrama_arquitetura.png)
 
 ### Connectors
 
@@ -193,7 +193,7 @@ Demonstra uso de transformers individuais e `TransformPipeline` para compor múl
 
 ## Estendendo o framework
 
-![Abstração e Extensibilidade](docs/imgs/diagrama3_abstracao.png)
+![Abstração e Extensibilidade](docs/imgs/diagrama_abstracao.png)
 
 Criar um novo conector em 3 passos:
 
