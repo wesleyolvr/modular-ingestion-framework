@@ -5,14 +5,14 @@ Framework Python para pipelines de ingestão de dados com arquitetura modular e 
 ![Tests](https://img.shields.io/badge/tests-118%20passing-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-82%25-green)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
+
 ```
-fetch →      validate →      transform →        load
-  ↑            ↑                 ↑                ↑
-connector   validator       transformer        loader
-  (REST,    (Pydantic)     (FieldMapper,       (JSON,
-    File)                                     PostgreSQL)
-                              Enrich,      
-                            Filter, etc)
+fetch → validate → transform → load
+  ↑          ↑         ↑         ↑
+connector  validator transformer loader
+  (REST,    (Pydantic) (FieldMapper, (JSON,
+  File)                Enrich,      PostgreSQL)
+                        Filter, etc)
 ```
 
 ![Fluxo do Pipeline](docs/imgs/diagrama_pipeline_flow.png)
@@ -42,6 +42,14 @@ Para usar o PostgreSQL loader, instale também as dependências opcionais:
 ```bash
 poetry install --with postgres
 ```
+
+Para subir um PostgreSQL local com as tabelas de exemplo (municípios, Selic, IPCA):
+
+```bash
+docker compose up -d
+```
+
+O `init.sql` cria as tabelas e insere dados iniciais. Credenciais padrão: `pipeline` / `pipeline123`, banco `pipeline_dev`.
 
 **Requisitos:**
 - Python 3.11+
@@ -146,7 +154,7 @@ python examples/pipeline_ibge.py
 
 Busca os 224 municípios do Piauí via API pública do IBGE, valida schema e tipos usando `PydanticValidator`, aplica transformação para extrair campos relevantes, e salva em JSON local.
 
-**Nota:** O exemplo usa `Municipio_IBGE` de `core.models.py` e inclui uma função `transform_municipios` para estruturar os dados da API.
+**Nota:** O exemplo usa `Municipio_IBGE` de `core.models.py` e uma função `transform_municipios` para estruturar os dados. Alternativamente, pode-se usar `IBGETransformer()` para o mesmo fim.
 
 ### Exemplo 2 — Usando Transformers
 
@@ -155,6 +163,14 @@ poetry run python examples/pipeline_with_transformers.py
 ```
 
 Demonstra uso de transformers individuais e `TransformPipeline` para compor múltiplas transformações em sequência.
+
+### Exemplo 3 — API BCB (Selic)
+
+```bash
+poetry run python examples/pipeline_selic.py
+```
+
+Busca dados da taxa Selic via API do Banco Central, valida com `PydanticValidator`, aplica `SelicTransformer` (formata datas, calcula taxa anualizada) e salva em JSON local.
 
 ---
 
@@ -285,9 +301,9 @@ poetry run pytest --cov=core --cov=validators --cov=connectors --cov=loaders --c
 ```
 
 **Cobertura atual (82% geral):**
-- ✅ `Pipeline` (89%) — testes de sucesso, falhas de validação, erros de conector, transformações
+- ✅ `Pipeline` (88%) — testes de sucesso, falhas de validação, erros de conector, transformações
 - ✅ `PydanticValidator` (89%) — validação de schema, tipos, constraints, campos opcionais, validadores customizados, detecção de duplicatas (`unique_by`)
-- ✅ `RESTConnector` (89%) — requisições GET/POST, autenticação, headers, params, timeout
+- ✅ `RESTConnector` (90%) — requisições GET/POST, autenticação, headers, params, timeout
 - ✅ `FileConnector` (71%) — leitura de CSV, JSON, JSONL, tratamento de erros
 - ✅ `JsonLoader` (100%) — escrita de JSON, criação de diretórios, encoding
 - ✅ `PostgresLoader` (93%) — INSERT/UPSERT, geração de SQL, tratamento de erros
@@ -296,7 +312,7 @@ poetry run pytest --cov=core --cov=validators --cov=connectors --cov=loaders --c
 - ✅ `Exceptions` (100%) — PipelineError, ValidationError
 
 **Estrutura de testes:**
-- `tests/test_core/` — Pipeline, exceptions
+- `tests/test_core/` — Pipeline, exceptions (test_pipeline.py, test_exceptions.py)
 - `tests/test_validators/` — PydanticValidator
 - `tests/test_connectors/` — RESTConnector, FileConnector
 - `tests/test_loaders/` — JsonLoader, PostgresLoader
@@ -344,16 +360,28 @@ modular-ingestion-framework/
 │   └── metrics.py           # PipelineMetrics (Pydantic BaseModel)
 ├── examples/
 │   ├── pipeline_ibge.py           # Pipeline completo com API IBGE + transform
+│   ├── pipeline_selic.py         # Pipeline com API BCB Selic + SelicTransformer
 │   └── pipeline_with_transformers.py # Exemplos de uso de transformers
+├── docs/
+│   └── imgs/                # Diagramas (Excalidraw exportados)
+│       ├── diagrama_pipeline_flow.png
+│       ├── diagrama_arquitetura.png
+│       └── diagrama_abstracao.png
+├── input/                   # Arquivos de exemplo e diagramas Excalidraw
+│   ├── diagrama*.excalidraw
+│   ├── municipios_pi.csv
+│   └── municipios_pi.xlsx
 ├── scripts/                 # Scripts de exploração e testes
 │   ├── pipeline_ibge.py
+│   ├── pipeline_example.py
 │   ├── explorando_*.py
 │   └── README.md            # Guia sobre execução de scripts
 ├── tests/
 │   ├── __init__.py
 │   ├── test_core/
 │   │   ├── __init__.py
-│   │   └── test_pipeline.py
+│   │   ├── test_pipeline.py
+│   │   └── test_exceptions.py
 │   ├── test_validators/
 │   │   ├── __init__.py
 │   │   └── test_validators.py
@@ -369,6 +397,8 @@ modular-ingestion-framework/
 │   └── test_audit/
 │       ├── __init__.py
 │       └── test_metrics.py
+├── docker-compose.yml      # PostgreSQL local para testes
+├── init.sql                # Schema inicial do banco
 ├── pyproject.toml          # Configuração Poetry + pytest
 └── poetry.lock             # Lock file das dependências
 ```
